@@ -1,0 +1,38 @@
+name: 'Preferred-IP'
+
+on:
+  push:
+    branches: 
+      - main
+  schedule:
+    - cron: '*/10 * * * *'
+
+env:
+  UPDATE_IPV4: true
+  UPDATE_IPV6: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+      - name: 'Set up Python'
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - name: 'Install dependencies'
+        run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: 'run Preferred-IP v4'
+        if: env.UPDATE_IPV4 == 'true' && !cancelled()
+        env:
+          DOMAINS: ${{ secrets.DOMAINS }}
+          SECRETID: ${{ secrets.SECRETID }}
+          SECRETKEY: ${{ secrets.SECRETKEY }}
+        run: python Preferred-IP.py A
+      - name: 'run Preferred-IP v6'
+        if: env.UPDATE_IPV6 == 'true' && !cancelled()
+        env:
+          DOMAINS: ${{ secrets.DOMAINSV6 }}
+          SECRETID: ${{ secrets.SECRETID }}
+          SECRETKEY: ${{ secrets.SECRETKEY }}
+        run: python Preferred-IP.py AAAA
