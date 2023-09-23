@@ -141,7 +141,7 @@ def main(cloud):
         except Exception as e:
             logging.error("操作DNS记录失败: 时间=%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), str(traceback.print_exc())))
 
-    logging.info("成功推送的域名列表:")
+    logging.info("优选IP已成功推送到:")
     for domain in successful_domains:
         obfuscated_domain = domain[:3] + '*' * (len(domain) - 6) + domain[-3:]  # 使用星号替换中间字符
         logging.info("域名：%s" % obfuscated_domain)
