@@ -54,10 +54,10 @@ def change_dns(cloud, line, s_info, c_info, domain, sub_domain):
                     continue
                 ret = cloud.change_record(domain, info["recordId"], sub_domain, cf_ip, CONFIG["RECORD_TYPE"], line, CONFIG["TTL"])
                 if ret["code"] == 0:
-                    logging.info("成功更新DNS记录: 时间:%s, 解析线路=%s, 记录ID=%s, 值=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, info["recordId"], cf_ip))
+                    logging.info("成功更新DNS记录——时间:%s, 解析线路=%s, 记录ID=%s, 值=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, info["recordId"], cf_ip))
                     successful_domains.add(domain)
                 else:
-                    logging.error("更新DNS记录失败: 时间:%s, 解析线路=%s, 记录ID=%s, 值=%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, info["recordId"], cf_ip, ret["message"]))
+                    logging.error("更新DNS记录失败——时间:%s, 解析线路=%s, 记录ID=%s, 值=%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, info["recordId"], cf_ip, ret["message"]))
         elif create_num > 0:
             for i in range(create_num):
                 if len(c_info) == 0:
@@ -67,10 +67,10 @@ def change_dns(cloud, line, s_info, c_info, domain, sub_domain):
                     continue
                 ret = cloud.create_record(domain, sub_domain, cf_ip, CONFIG["RECORD_TYPE"], line, CONFIG["TTL"])
                 if ret["code"] == 0:
-                    logging.info("成功创建DNS记录: 时间:%s, 解析线路=%s, 值=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, cf_ip))
+                    logging.info("成功创建DNS记录——时间:%s, 解析线路=%s, 值=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, cf_ip))
                     successful_domains.add(domain)
                 else:
-                    logging.error("创建DNS记录失败: 时间:%s, 解析线路=%s, 值=%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, cf_ip, ret["message"]))
+                    logging.error("创建DNS记录失败——时间:%s, 解析线路=%s, 值=%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, cf_ip, ret["message"]))
         else:
             for info in s_info:
                 if create_num == 0 or len(c_info) == 0:
@@ -81,13 +81,13 @@ def change_dns(cloud, line, s_info, c_info, domain, sub_domain):
                     continue
                 ret = cloud.change_record(domain, info["recordId"], sub_domain, cf_ip, CONFIG["RECORD_TYPE"], line, CONFIG["TTL"])
                 if ret["code"] == 0:
-                    logging.info("成功更新DNS记录: 时间:%s, 解析线路=%s, 记录ID=%s, 值=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, info["recordId"], cf_ip))
+                    logging.info("成功更新DNS记录——时间:%s, 解析线路=%s, 记录ID=%s, 值=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, info["recordId"], cf_ip))
                     successful_domains.add(domain)
                 else:
-                    logging.error("更新DNS记录失败: 时间:%s, 解析线路=%s, 记录ID=%s, 值=%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, info["recordId"], cf_ip, ret["message"]))
+                    logging.error("更新DNS记录失败——时间:%s, 解析线路=%s, 记录ID=%s, 值=%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), line, info["recordId"], cf_ip, ret["message"]))
                 create_num += 1
     except Exception as e:
-        logging.error("操作DNS记录失败: 时间:%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), str(traceback.print_exc())))
+        logging.error("操作DNS记录失败——时间:%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), str(traceback.print_exc())))
 
 # 主函数
 def main(cloud):
@@ -95,7 +95,7 @@ def main(cloud):
         try:
             cfips = get_optimization_ip()
             if cfips is None or cfips["code"] != 200:
-                logging.error("获取优选IP错误: 时间:%s" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)))
+                logging.error("获取优选IP错误——时间:%s" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)))
                 return
             cf_cmips = cfips["info"]["CM"]
             cf_cuips = cfips["info"]["CU"]
@@ -111,9 +111,9 @@ def main(cloud):
                             if record["line"] in ["移动", "联通", "电信"]:
                                 retMsg = cloud.del_record(domain, record["id"])
                                 if retMsg["code"] == 0:
-                                    logging.info("成功删除DNS记录: 时间:%s, 解析线路=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), record["line"]))
+                                    logging.info("成功删除DNS记录——时间:%s, 解析线路=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), record["line"]))
                                 else:
-                                    logging.error("删除DNS记录失败: 时间:%s, 解析线路=%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), record["line"], retMsg["message"]))
+                                    logging.error("删除DNS记录失败——时间:%s, 解析线路=%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), record["line"], retMsg["message"]))
                     ret = cloud.get_record(domain, 100, sub_domain, CONFIG["RECORD_TYPE"])
                     if ret["code"] == 0:
                         if "Free" in ret["data"]["domain"]["grade"] and CONFIG["AFFECT_NUM"] > 2:
@@ -139,7 +139,7 @@ def main(cloud):
                             elif line == "CT":
                                 change_dns(cloud, "CT", ct_info, temp_cf_ctips, domain, sub_domain)
         except Exception as e:
-            logging.error("操作DNS记录失败: 时间:%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), str(traceback.print_exc())))
+            logging.error("操作DNS记录失败——时间:%s, 错误信息=%s" % (time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 8 * 3600)), str(traceback.print_exc())))
 
     logging.info("\n优选IP已成功推送到:")
     for domain in successful_domains:
