@@ -1,0 +1,4 @@
+requests
+tencentcloud-sdk-python
+datetime
+pytz
