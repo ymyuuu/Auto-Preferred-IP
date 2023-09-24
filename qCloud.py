@@ -3,42 +3,42 @@ from tencentcloud.common import credential
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.dnspod.v20210323 import dnspod_client, models
 
-class QcloudApiv3():
-    def __init__(self, SECRETID, SECRETKEY):
-        # 初始化 QcloudApiv3 类，并传入腾讯云 API 的凭据。
-        self.SecretId = SECRETID
-        self.secretKey = SECRETKEY
-        self.cred = credential.Credential(SECRETID, SECRETKEY)
+class QcloudApiV3:
+    def __init__(self, secret_id, secret_key):
+        # 初始化 QcloudApiV3 类，并传入腾讯云 API 的凭据。
+        self.secret_id = secret_id
+        self.secret_key = secret_key
+        self.cred = credential.Credential(secret_id, secret_key)
+        self.client = dnspod_client.DnspodClient(self.cred, "")
+        self.error_response = {"code": 0, "message": "None"}
 
-    def del_record(self, domain: str, record_id: int):
+    def _format_record(self, record):
+        new_record = {}
+        record["id"] = record['RecordId']
+        for key in record:
+            new_record[key.lower()] = record[key]
+        return new_record
+
+    def _get_domain_info(self, domain):
+        req = models.DescribeDomainRequest()
+        params = {"Domain": domain}
+        req.from_json_string(json.dumps(params))
+        resp = self.client.DescribeDomain(req)
+        return json.loads(resp.to_json_string())
+
+    def del_record(self, domain, record_id):
         # 删除 DNS 记录。
-        client = dnspod_client.DnspodClient(self.cred, "")
-        req_model = models.DeleteRecordRequest()
-        params = {
-            "Domain": domain,
-            "RecordId": record_id
-        }
-        req_model.from_json_string(json.dumps(params))
-
-        resp = client.DeleteRecord(req_model)
-
-        # 将响应转换为 JSON 格式，并添加自定义的 code 和 message 字段。
-        resp = json.loads(resp.to_json_string())
-        resp["code"] = 0
-        resp["message"] = "None"
-        return resp
-
-    def get_record(self, domain: str, length: int, sub_domain: str, record_type: str):
-        def format_record(record: dict):
-            new_record = {}
-            record["id"] = record['RecordId']
-            for key in record:
-                new_record[key.lower()] = record[key]
-            return new_record
-
         try:
-            client = dnspod_client.DnspodClient(self.cred, "")
+            req_model = models.DeleteRecordRequest()
+            params = {"Domain": domain, "RecordId": record_id}
+            req_model.from_json_string(json.dumps(params))
+            resp = self.client.DeleteRecord(req_model)
+            return json.loads(resp.to_json_string())
+        except TencentCloudSDKException:
+            return self.error_response
 
+    def get_record(self, domain, length, sub_domain, record_type):
+        try:
             req_model = models.DescribeRecordListRequest()
             params = {
                 "Domain": domain,
@@ -47,35 +47,20 @@ class QcloudApiv3():
                 "Limit": length
             }
             req_model.from_json_string(json.dumps(params))
-
-            resp = client.DescribeRecordList(req_model)
-            resp = json.loads(resp.to_json_string())
-
-            temp_resp = {}
-            temp_resp["code"] = 0
-            temp_resp["data"] = {}
-            temp_resp["data"]["records"] = []
+            resp = self.client.DescribeRecordList(req_model)
+            resp_data = {"code": 0, "data": {"records": []}}
 
             # 格式化每个记录并添加到响应中。
-            for record in resp['RecordList']:
-                temp_resp["data"]["records"].append(format_record(record))
+            for record in json.loads(resp.to_json_string())['RecordList']:
+                resp_data["data"]["records"].append(self._format_record(record))
 
-            temp_resp["data"]["domain"] = {}
-            temp_resp["data"]["domain"]["grade"] = self.get_domain(domain)["DomainInfo"]["Grade"]  # DP_Free
-            return temp_resp
-
+            resp_data["data"]["domain"] = {"grade": self._get_domain_info(domain)["DomainInfo"]["Grade"]}
+            return resp_data
         except TencentCloudSDKException:
-            temp_resp = {}
-            temp_resp["code"] = 0
-            temp_resp["data"] = {}
-            temp_resp["data"]["records"] = {}
-            temp_resp["data"]["domain"] = {}
-            temp_resp["data"]["domain"]["grade"] = self.get_domain(domain)["DomainInfo"]["Grade"]  # DP_Free
-            return temp_resp
+            return self.error_response
 
-    def create_record(self, domain: str, sub_domain: str, value: int, record_type: str = "A", line: str = "默认", ttl: int = 600):
+    def create_record(self, domain, sub_domain, value, record_type="A", line="默认", ttl=600):
         # 创建 DNS 记录。
-        client = dnspod_client.DnspodClient(self.cred, "")
         req = models.CreateRecordRequest()
         params = {
             "Domain": domain,
@@ -87,17 +72,14 @@ class QcloudApiv3():
         }
         req.from_json_string(json.dumps(params))
 
-        resp = client.CreateRecord(req)
+        try:
+            resp = self.client.CreateRecord(req)
+            return json.loads(resp.to_json_string())
+        except TencentCloudSDKException:
+            return self.error_response
 
-        # 将响应转换为 JSON 格式，并添加自定义的 code 和 message 字段。
-        resp = json.loads(resp.to_json_string())
-        resp["code"] = 0
-        resp["message"] = "None"
-        return resp
-
-    def change_record(self, domain: str, record_id: int, sub_domain: str, value: str, record_type: str = "A", line: str = "默认", ttl: int = 600):
+    def change_record(self, domain, record_id, sub_domain, value, record_type="A", line="默认", ttl=600):
         # 修改 DNS 记录。
-        client = dnspod_client.DnspodClient(self.cred, "")
         req = models.ModifyRecordRequest()
         params = {
             "Domain": domain,
@@ -110,23 +92,8 @@ class QcloudApiv3():
         }
         req.from_json_string(json.dumps(params))
 
-        resp = client.ModifyRecord(req)
-
-        # 将响应转换为 JSON 格式，并添加自定义的 code 和 message 字段。
-        resp = json.loads(resp.to_json_string())
-        resp["code"] = 0
-        resp["message"] = "None"
-        return resp
-
-    def get_domain(self, domain: str):
-        # 获取域名信息。
-        client = dnspod_client.DnspodClient(self.cred, "")
-        req = models.DescribeDomainRequest()
-        params = {
-            "Domain": domain
-        }
-        req.from_json_string(json.dumps(params))
-
-        resp = client.DescribeDomain(req)
-        resp = json.loads(resp.to_json_string())
-        return resp
+        try:
+            resp = self.client.ModifyRecord(req)
+            return json.loads(resp.to_json_string())
+        except TencentCloudSDKException:
+            return self.error_response
