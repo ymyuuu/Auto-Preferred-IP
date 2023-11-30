@@ -2,6 +2,12 @@
 
 Preferred-IP 是一个用于自动更新DNS解析记录的工具，旨在帮助您始终使用最佳的IP地址来提高您的域名性能和可用性。这个工具可以特别对需要快速响应变化的网站和应用程序非常有用，因为它确保了您的域名将始终指向性能最佳的服务器IP地址。
 
+## 交流群和通知频道
+
+欢迎加入我们的交流群 [Preferred IP Push Chat](https://t.me/Preferred_IP_Push_Chat)
+
+同时，你可以关注我们的通知频道 [Preferred IP Push](https://t.me/Preferred_IP_Push)
+
 <img style="width: 100%; height: auto;" alt="image" src="https://github.com/ymyuuu/Preferred-IP/assets/135582157/757cc679-6d3e-439e-8264-4f21aa5e7bb1">
 
 
